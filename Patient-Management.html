@@ -398,6 +398,13 @@
 </head>
 <body>
 
+	<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.7); z-index:9999; flex-direction:column; justify-content:center; align-items:center;">
+		<i class="fas fa-spinner fa-spin fa-3x" style="color:#1a6e5f; margin-bottom:1rem;"></i>
+		<div style="font-weight:600; color:#115e54;">Processing... Please wait</div>
+	</div>
+
+
+
 	<div id="loginPage" class="login-container">
 		<div class="login-card">
 			<h2><i class="fas fa-stethoscope"></i> MGM Health Care</h2>
@@ -484,63 +491,38 @@
 
 		// API CALL FUNCTION - IMPROVED VERSION WITH BETTER ERROR HANDLING
 		async function callGoogleAPI(action, data = {}) {
+			const overlay = document.getElementById('loadingOverlay');
 			try {
+				// Show loader
+				if (overlay) overlay.style.display = 'flex';
+
 				const statusEl = document.getElementById('syncStatus');
-				if (statusEl) {
-					statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing...';
-				}
+				if (statusEl) statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing...';
 
 				const payload = { action, ...data };
-
-				console.log("Calling API with action:", action, "Payload:", payload);
-
 				const response = await fetch(GOOGLE_SCRIPT_URL, {
 					method: 'POST',
 					mode: 'cors',
-					headers: {
-						'Content-Type': 'text/plain',
-					},
+					headers: { 'Content-Type': 'text/plain' },
 					body: JSON.stringify(payload)
 				});
 
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
-				}
+				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
 				const result = await response.json();
-				console.log("API Response:", result);
 
-				if (statusEl && action !== 'getPatients' && action !== 'getDoctors') {
-					if (result.success) {
-						statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Saved!';
-						setTimeout(() => {
-							if (document.getElementById('syncStatus')) {
-								document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready';
-							}
-						}, 2000);
-					} else {
-						statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
-						setTimeout(() => {
-							if (document.getElementById('syncStatus')) {
-								document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready';
-							}
-						}, 2000);
-					}
+				if (statusEl) {
+					statusEl.innerHTML = result.success ? '<i class="fas fa-check-circle"></i> Done' : '<i class="fas fa-times-circle"></i> Error';
+					setTimeout(() => { statusEl.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready'; }, 2000);
 				}
 
 				return result;
 			} catch (error) {
 				console.error("API Error:", error);
-				const statusEl = document.getElementById('syncStatus');
-				if (statusEl) {
-					statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection Error';
-					setTimeout(() => {
-						if (document.getElementById('syncStatus')) {
-							document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready';
-						}
-					}, 3000);
-				}
 				return { success: false, error: error.message };
+			} finally {
+				// Hide loader always (success or failure)
+				if (overlay) overlay.style.display = 'none';
 			}
 		}
 
@@ -769,14 +751,13 @@
 			}
 		}
 
+		// DELETE Example
 		async function deletePatient(id) {
 			if (confirm("Delete this patient record permanently?")) {
 				const result = await callGoogleAPI("deletePatient", { id: id });
 				if (result.success) {
-					await loadData();
+					await loadData(); // IDHU DHAN MUKKIYAM - automatic refresh aagum
 					alert("Patient deleted");
-				} else {
-					alert("Delete failed");
 				}
 			}
 		}
