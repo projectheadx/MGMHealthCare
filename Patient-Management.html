@@ -7,6 +7,27 @@
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 	<style>
+
+		/* Table cells content overflow fix */
+		td {
+			max-width: 200px; /* Nee unaku ethapadi mathiko */
+			white-space: normal;
+			word-wrap: break-word;
+			word-break: break-word; /* Idhu dhaan long text-ah automatic-ah next line kondu varum */
+			vertical-align: top;
+		}
+
+			/* Specific-ah complaint column-ku mattum venum na */
+			td:nth-child(9) {
+				min-width: 150px;
+				font-size: 0.85rem;
+				color: #444;
+			}
+
+
+
+
+
 		* {
 			margin: 0;
 			padding: 0;
