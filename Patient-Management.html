@@ -443,7 +443,7 @@
 				<div class="form-field"><label>Fees Collected (₹)</label><input type="number" id="patFees" placeholder="Consultation fee" value="0"></div>
 				<div class="form-field"><label>Complaint / Diagnosis</label><textarea id="patComplaint" rows="2" placeholder="Symptoms, diagnosis..."></textarea></div>
 			</div>
-			<button class="submit-btn" onclick="addPatient()"><i class="fas fa-save"></i> Save Patient Record (Syncs to Cloud)</button>
+			<button class="submit-btn" onclick="addPatient()"><i class="fas fa-save"></i> Save Patient Record (Syncs to Google Sheet)</button>
 		</div>
 
 		<!-- Filters -->
@@ -547,26 +547,27 @@
 		// LOAD DATA FROM GOOGLE SHEET
 		async function loadData() {
 			const statusEl = document.getElementById('syncStatus');
-			const tbody = document.getElementById('tableBody');
-
-			// Table-la spinner kaata
-			tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:3rem;"><i class="fas fa-spinner fa-spin fa-2x" style="color:#1a6e5f;"></i><br><br>Fetching Records...</td></tr>';
-
 			statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing...';
+			statusEl.className = 'sync-status';
 
 			try {
+				// Load patients
 				const pResult = await callGoogleAPI("getPatients");
 				if (pResult.success && pResult.patients) {
 					patients = pResult.patients;
-					patients.forEach(p => {
-						if (p.fees === undefined) p.fees = 0;
-						p.date = formatDateString(p.date);
-					});
+					patients.forEach(p => { if (p.fees === undefined) p.fees = 0; });
+				} else {
+					patients = [];
+					console.log("Patients load failed:", pResult);
 				}
 
+				// Load doctors
 				const dResult = await callGoogleAPI("getDoctors");
 				if (dResult.success && dResult.doctors) {
 					doctors = dResult.doctors;
+				} else {
+					doctors = [];
+					console.log("Doctors load failed:", dResult);
 				}
 
 				updateUI();
@@ -574,7 +575,7 @@
 				statusEl.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Synced ✓';
 			} catch (error) {
 				statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sync Failed';
-				tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:red;">Failed to load data. Check connection.</td></tr>';
+				console.error("Load error:", error);
 			}
 		}
 
@@ -667,12 +668,17 @@
 			if (patients.length === 0) return 1001;
 			return Math.max(...patients.map(p => Number(p.id) || 0)) + 1;
 		}
+
 		async function addPatient() {
 			const doctor = document.getElementById('patDoctor').value;
 			const name = document.getElementById('patName').value.trim();
 
-			if (!doctor || !name) {
-				alert("Please fill Doctor and Patient name");
+			if (!doctor) {
+				alert("Please select a doctor");
+				return;
+			}
+			if (!name) {
+				alert("Please enter patient name");
 				return;
 			}
 
@@ -688,21 +694,15 @@
 				complaint: document.getElementById('patComplaint').value.trim() || '—'
 			};
 
-			// --- OPTIMIZATION START ---
-			// Background-la save panna soltu, UI-la notification kaatu
-			const statusEl = document.getElementById('syncStatus');
-			statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Saving to Cloud...';
+			const result = await callGoogleAPI("savePatient", { patient: patient });
 
-			clearPatientForm(); // Form-ah udane clear panniru (User next entry poda ready aiduvanga)
-
-			callGoogleAPI("savePatient", { patient: patient }).then(result => {
-				if (result.success) {
-					loadData(); // Success aana apram table-ah update pannu
-				} else {
-					alert("Error saving record: " + result.error);
-				}
-			});
-			// --- OPTIMIZATION END ---
+			if (result.success) {
+				await loadData();
+				clearPatientForm();
+				alert(`✓ Patient "${name}" saved for ${doctor}`);
+			} else {
+				alert("Failed to save patient. Error: " + (result.error || "Unknown"));
+			}
 		}
 
 		function clearPatientForm() {
@@ -969,6 +969,41 @@
 	</script>
 
 
+
+	<script>
+
+		async function loadData() {
+			const tbody = document.getElementById('tableBody');
+			// Table-la loading message kaatu
+			tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:3rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Fetching Records... Please wait.</td></tr>';
+
+			try {
+				const pResult = await callGoogleAPI("getPatients");
+				// ... (rest of your load logic)
+			} catch (e) {
+				// ...
+			}
+		}
+
+
+
+	</script>
+
+	<script>
+
+		async function addPatient() {
+			// 1. First UI-la immediate-ah result kaatu
+			alert("Record sending to server... You can continue working.");
+			clearPatientForm();
+
+			// 2. Background-la API call pannu
+			const result = await callGoogleAPI("savePatient", { patient: patient });
+
+			if (result.success) {
+				loadData(); // Success aana apram refresh pannu
+			}
+		}
+	</script>
 
 
 
