@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Dr. M.M. Gopikumar | MGM Health Care | Family Physician & Diabetologist</title>
+    <!-- Google Fonts + Simple Reset -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #eef3fc;
+            color: #1a2e3f;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 2rem;
+        }
+
+        /* Hero Section - with photo alignment */
+        .hero {
+            background: linear-gradient(115deg, #0c4e46 0%, #157a6b 100%);
+            border-radius: 2rem;
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
+            color: white;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .hero-content {
+            flex: 2;
+        }
+
+        .hero-photo {
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            padding: 0.4rem;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+            .hero-photo img {
+                width: 160px;
+                height: 160px;
+                object-fit: cover;
+                border-radius: 50%;
+                border: 4px solid white;
+                display: block;
+                background: #e9f0f5;
+            }
+
+            /* fallback icon if image fails */
+            .hero-photo .fallback-icon {
+                width: 160px;
+                height: 160px;
+                background: #2c9a8a;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 5rem;
+                color: white;
+                border: 4px solid white;
+            }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .hero .subhead {
+            font-size: 1rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.12);
+            display: inline-block;
+            padding: 0.3rem 1.2rem;
+            border-radius: 40px;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+            .badge-group span {
+                background: rgba(255, 255, 255, 0.18);
+                padding: 0.4rem 1rem;
+                border-radius: 30px;
+                font-size: 0.85rem;
+                font-weight: 500;
+            }
+
+        /* cards */
+        .card {
+            background: white;
+            border-radius: 1.6rem;
+            padding: 2rem 2.2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.2s;
+            border: 1px solid #e9edf2;
+        }
+
+            .card:hover {
+                box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+            }
+
+        .section-title {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #115e54;
+            border-left: 5px solid #2c9a8a;
+            padding-left: 1rem;
+            margin-bottom: 1.6rem;
+            line-height: 1.3;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+            .info-item i {
+                font-size: 1.5rem;
+                color: #2c9a8a;
+                min-width: 2rem;
+                margin-top: 0.2rem;
+            }
+
+            .info-item strong {
+                font-weight: 700;
+                color: #145c50;
+                display: block;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 0.2rem;
+            }
+
+            .info-item p, .info-item div {
+                color: #2a3e48;
+                font-weight: 500;
+                line-height: 1.45;
+            }
+
+        .reg-box {
+            background: #f5f9ff;
+            padding: 0.7rem 1rem;
+            border-radius: 1rem;
+            border-left: 3px solid #2c9a8a;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .timing-badge {
+            background: #eef3fa;
+            border-radius: 20px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #1a6e5f;
+            border: none;
+            color: white;
+            padding: 0.8rem 1.8rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 44px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+            .btn-primary:hover {
+                background: #0e5548;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+            }
+
+        .service-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+            .service-list li {
+                margin-bottom: 0.85rem;
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+            }
+
+                .service-list li i {
+                    color: #2c9a8a;
+                    font-size: 1.1rem;
+                    width: 1.4rem;
+                }
+
+        .map-card {
+            background: #e2eaf1;
+            border-radius: 1.4rem;
+            padding: 1.4rem;
+            text-align: center;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #cddae4;
+        }
+
+            .map-card:hover {
+                background: #d3dfe8;
+                transform: scale(0.99);
+            }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            color: #5c6f82;
+            font-size: 0.8rem;
+            border-top: 1px solid #dce5ed;
+        }
+
+        @media (max-width: 780px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.8rem;
+            }
+
+            .hero-photo {
+                margin-bottom: 0.5rem;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .grid-2col {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .card {
+                padding: 1.4rem;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+            }
+
+            .hero-photo img, .hero-photo .fallback-icon {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Hero Section with Doctor Photo -->
+        <div class="hero">
+            <div class="hero-content">
+                <div class="subhead">
+                    <i class="fas fa-stethoscope"></i> M.G.M Health Care | Family Medicine & Diabetes
+                </div>
+                <h1>Dr. M.M. Gopikumar</h1>
+                <p style="font-size: 1rem; opacity: 0.92; margin-bottom: 0.3rem; font-weight: 500;">M.B.B.S., DFM (UK), FID (UK)</p>
+                <p style="font-size: 1rem; margin-bottom: 0.8rem; font-weight: 400;">Family Physician & Diabetologist</p>
+                <div class="badge-group">
+                    <span><i class="fas fa-id-card"></i> Regd No: 111952</span>
+                    <span><i class="fas fa-user-md"></i> Family Medicine</span>
+                    <span><i class="fas fa-chart-line"></i> Diabetology</span>
+                    <span><i class="fas fa-globe"></i> DFM (UK) | FID (UK)</span>
+                </div>
+            </div>
+            <div class="hero-photo">
+                <!-- Professional doctor photo placeholder - using a high quality medical professional avatar
+                     (with a friendly, trustworthy doctor image from UI faces but clinically appropriate) -->
+                <img src="img/dr-gopi.jpg"
+                     alt="Dr. M.M. Gopikumar"
+                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=fallback-icon><i class=\'fas fa-user-md\'></i></div>';">
+            </div>
+        </div>
+
+        <!-- Profile & Quick Info Grid -->
+        <div class="card">
+            <div class="grid-2col">
+                <div>
+                    <div class="info-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <div>
+                            <strong>Qualifications</strong>
+                            <p>M.B.B.S. | DFM (UK) - Diploma in Family Medicine<br>FID (UK) - Fellowship in Diabetes (United Kingdom)<br><span style="font-size:0.85rem; color:#4a6a6a;">Specialist training in Diabetes & Family Practice</span></p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-briefcase-medical"></i>
+                        <div>
+                            <strong>Expertise</strong>
+                            <p>Comprehensive Diabetes Management, Hypertension, Thyroid Disorders, Geriatric Care, Fever & Respiratory Illnesses, Preventive Health.</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-id-card"></i>
+                        <div>
+                            <strong>Medical Registration</strong>
+                            <div class="reg-box">Regd No: 111952 — Tamil Nadu Medical Council (Active)</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="info-item">
+                        <i class="fas fa-map-pin"></i>
+                        <div>
+                            <strong>Clinic Address</strong>
+                            <p>C/O MGM Health Care, Sainath Complex,<br> Kavarapettai, Kilmudalambedu,<br> Chennai - 601206, Tamil Nadu</p>
+                            <a href="#" id="directionsLink" style="color:#1a6e5f; font-weight:500; text-decoration:none; font-size:0.9rem;"><i class="fas fa-directions"></i> Get Directions →</a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <strong>Consultation Hours</strong>
+                            <p>
+                                <span class="timing-badge"><i class="far fa-sun"></i> Morning</span> 9:00 AM – 2:00 PM<br>
+                                <span class="timing-badge"><i class="fas fa-moon"></i> Evening</span> 4:00 PM – 9:00 PM
+                            </p>
+                            <small style="color:#4d6e7c;">Monday – Saturday | Sunday: Prior appointment only</small>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div>
+                            <strong>Appointments</strong>
+                            <p>
+                                <i class="fas fa-phone"></i> +91 44-2792 1124 (Clinic Desk)<br>
+                                <button class="btn-primary" id="apptBtnMain"><i class="fas fa-calendar-check"></i> Book Appointment</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Specialized Clinical Services -->
+        <div class="card">
+            <h2 class="section-title"><i class="fas fa-stethoscope"></i> Specialized Clinical Services</h2>
+            <div class="grid-2col">
+                <div>
+                    <ul class="service-list">
+                        <li><i class="fas fa-check-circle"></i> Complete Diabetes Care (Type 1, Type 2, Gestational)</li>
+                        <li><i class="fas fa-check-circle"></i> Family Medicine & General Consultation</li>
+                        <li><i class="fas fa-check-circle"></i> Chronic Disease Management (BP, Thyroid, Cholesterol)</li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="service-list">
+                        <li><i class="fas fa-check-circle"></i> Preventive Health Check-ups & Lifestyle Counseling</li>
+                        <li><i class="fas fa-check-circle"></i> Geriatric & Adult Primary Care</li>
+                        <li><i class="fas fa-check-circle"></i> Fever, Respiratory Infections & Minor Emergencies</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="margin-top: 1.2rem; background:#f0f6f4; border-radius: 1.2rem; padding: 0.8rem 1.2rem; font-size:0.9rem;">
+                <i class="fas fa-syringe"></i> <strong>Diabetology focus:</strong> Insulin titration, continuous glucose monitoring support, dietary plans & patient education.
+            </div>
+        </div>
+
+        <!-- Academic & Professional Credentials -->
+        <div class="card">
+            <h2 class="section-title"><i class="fas fa-certificate"></i> Advanced Training & Global Credentials</h2>
+            <div class="grid-2col">
+                <div>
+                    <p><strong>🎓 M.B.B.S.</strong> — Recognized Medical Degree</p>
+                    <p><strong>🇬🇧 DFM (UK)</strong> — Diploma in Family Medicine, United Kingdom</p>
+                    <p><strong>🏅 FID (UK)</strong> — Fellowship in Diabetes, United Kingdom</p>
+                    <p style="margin-top: 0.8rem;">Extensive clinical experience in managing complex diabetes cases & comprehensive family health.</p>
+                </div>
+                <div>
+                    <p><strong>🏥 M.G.M Health Care – Sainath Complex</strong><br> Serving the community of Kavarapettai, Kilmudalambedu and surrounding Chennai suburbs with evidence-based, compassionate care.</p>
+                    <p style="margin-top: 1rem;"><i class="fas fa-star-of-life"></i> <strong>Medical philosophy:</strong> Timely diagnosis, patient-centered treatment, and preventive strategies for long-term wellness.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location & Map section -->
+        <div class="card">
+            <h2 class="section-title"><i class="fas fa-location-dot"></i> Clinic Location – Kavarapettai, Chennai</h2>
+            <div class="grid-2col">
+                <div>
+                    <div class="map-card" id="mapBox">
+                        <i class="fas fa-map-marked-alt" style="font-size: 2rem; margin-bottom: 0.6rem; display: block;"></i>
+                        <strong>📍 Sainath Complex, Kilmudalambedu</strong><br>
+                        Kavarapettai, Chennai - 601206<br>
+                        <span style="font-size:0.75rem;">Click to open Google Maps</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="info-item">
+                        <i class="fas fa-train"></i>
+                        <div><strong>Nearby Landmarks</strong><br>Kavarapettai Railway Station (~1.2 km) | NH-16 connectivity</div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-bus"></i>
+                        <div><strong>Public Transport</strong><br>MTC buses towards Kavarapettai / Ponneri from Chennai Central & Broadway.</div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-parking"></i>
+                        <div><strong>Parking</strong><br>Ample parking space available at Sainath Complex for patients.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment & Contact -->
+        <div class="card">
+            <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Schedule Your Visit</h2>
+            <div class="grid-2col">
+                <div>
+                    <p>
+                        <strong><i class="fas fa-phone"></i> Call to Book:</strong> <span style="font-size:1.1rem; font-weight:600;">+91 44 2792 1124</span><br>
+                        <strong><i class="fas fa-clock"></i> Consultation Hours:</strong> Morning 9am – 2pm | Evening 4pm – 9pm<br>
+                        <strong>Walk-ins Welcome</strong> — Priority for diabetic follow-ups and senior citizens.
+                    </p>
+                    <p style="margin-top: 0.8rem;"><i class="fas fa-shield-alt"></i> On-site diabetes educator & family medicine support available.</p>
+                </div>
+                <div style="background: #f8fbfe; border-radius: 1.2rem; padding: 1rem;">
+                    <i class="fas fa-notes-medical"></i> <strong>First Visit Guidelines:</strong> Please bring previous medical records, current medications list, and recent lab reports if available.
+                    <div style="margin-top: 0.7rem;"><i class="fas fa-credit-card"></i> Payment: Cash / UPI / Credit/Debit cards accepted.</div>
+                </div>
+            </div>
+            <div style="margin-top: 1.6rem; text-align: center;">
+                <button class="btn-primary" id="apptBtnSecond"><i class="fas fa-calendar-plus"></i> Request Appointment Online</button>
+            </div>
+        </div>
+
+        <footer>
+            <i class="fas fa-user-md"></i> Dr. M.M. Gopikumar — M.B.B.S., DFM (UK), FID (UK) | Family Physician & Diabetologist<br>
+            M.G.M Health Care, Sainath Complex, Kavarapettai, Chennai-601206 | © 2025
+        </footer>
+    </div>
+
+    <script>
+        // Google maps function
+        function openClinicMap() {
+            let clinicAddress = "Sainath Complex, Kavarapettai, Kilmudalambedu, Chennai, Tamil Nadu 601206";
+            let url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(clinicAddress)}`;
+            window.open(url, '_blank');
+        }
+
+        // appointment booking
+        function requestAppointment() {
+            let confirmBooking = confirm("Request appointment with Dr. M.M. Gopikumar (Family Physician & Diabetologist)?\n\nClick OK to proceed.");
+            if (confirmBooking) {
+                let preferredSlot = prompt("Preferred date/time? (e.g., Tomorrow 10 AM, or any evening slot after 5 PM)\nWe will confirm via call.");
+                if (preferredSlot !== null) {
+                    if (preferredSlot.trim() !== "") {
+                        alert(`✓ Request recorded. Preferred: "${preferredSlot}".\nOur clinic team will contact you shortly.\nFor urgent queries: +91 44 2792 1124`);
+                    } else {
+                        alert("✓ Request sent. Please call +91 44 2792 1124 to confirm your preferred timing. Walk-ins also welcome during hours.");
+                    }
+                } else {
+                    alert("You can also call directly: +91 44 2792 1124 (Mon-Sat, 9am-2pm & 4pm-9pm)");
+                }
+                let wantWhatsApp = confirm("Would you like to send a WhatsApp enquiry to the clinic?");
+                if (wantWhatsApp) {
+                    let number = "919940012345";
+                    let waText = "Hello, I would like to book an appointment with Dr. M.M. Gopikumar.";
+                    window.open(`https://wa.me/${number}?text=${encodeURIComponent(waText)}`, '_blank');
+                }
+            }
+        }
+
+        document.getElementById('apptBtnMain')?.addEventListener('click', requestAppointment);
+        document.getElementById('apptBtnSecond')?.addEventListener('click', requestAppointment);
+        const mapDiv = document.getElementById('mapBox');
+        if (mapDiv) mapDiv.addEventListener('click', openClinicMap);
+        const dirLink = document.getElementById('directionsLink');
+        if (dirLink) dirLink.addEventListener('click', (e) => { e.preventDefault(); openClinicMap(); });
+    </script>
+
+</body>
+</html>

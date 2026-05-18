@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MGM Health Care - Patient Management</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Inter', sans-serif;
+			background: #eef3fc;
+			min-height: 100vh;
+		}
+
+		.login-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			background: linear-gradient(135deg, #0c4e46 0%, #157a6b 100%);
+			padding: 1rem;
+		}
+
+		.login-card {
+			background: white;
+			border-radius: 2rem;
+			padding: 2.5rem;
+			width: 100%;
+			max-width: 420px;
+			box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+		}
+
+			.login-card h2 {
+				color: #115e54;
+				font-size: 1.8rem;
+				margin-bottom: 0.5rem;
+			}
+
+		.input-group {
+			margin-bottom: 1.2rem;
+		}
+
+			.input-group label {
+				display: block;
+				margin-bottom: 0.4rem;
+				font-weight: 500;
+				color: #2c3e44;
+			}
+
+			.input-group input {
+				width: 100%;
+				padding: 0.8rem 1rem;
+				border: 1px solid #d0dae3;
+				border-radius: 0.8rem;
+				font-size: 1rem;
+			}
+
+		.login-btn {
+			width: 100%;
+			background: #1a6e5f;
+			color: white;
+			border: none;
+			padding: 0.9rem;
+			border-radius: 0.8rem;
+			font-size: 1rem;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
+		.error-msg {
+			color: #dc3545;
+			font-size: 0.85rem;
+			margin-top: 0.5rem;
+			text-align: center;
+		}
+
+		.main-app {
+			display: none;
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 1.5rem;
+		}
+
+		.app-header {
+			background: white;
+			border-radius: 1.2rem;
+			padding: 1rem 1.8rem;
+			margin-bottom: 1.5rem;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 1rem;
+		}
+
+		.sync-status {
+			background: #d4edda;
+			color: #155724;
+			padding: 0.3rem 0.8rem;
+			border-radius: 2rem;
+			font-size: 0.75rem;
+			font-weight: 500;
+		}
+
+		.logout-btn {
+			background: #dc3545;
+			color: white;
+			border: none;
+			padding: 0.5rem 1.2rem;
+			border-radius: 2rem;
+			cursor: pointer;
+		}
+
+		.doctor-card {
+			background: linear-gradient(135deg, #fff8e7 0%, #fff3d6 100%);
+			border-left: 5px solid #f4b942;
+		}
+
+		.form-card {
+			background: white;
+			border-radius: 1.2rem;
+			padding: 1.5rem;
+			margin-bottom: 1.5rem;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+		}
+
+		.form-title {
+			font-size: 1.3rem;
+			font-weight: 600;
+			color: #115e54;
+			margin-bottom: 1.2rem;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.form-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 1rem;
+		}
+
+		.form-field {
+			display: flex;
+			flex-direction: column;
+		}
+
+			.form-field label {
+				font-size: 0.8rem;
+				font-weight: 600;
+				color: #4a6272;
+				margin-bottom: 0.3rem;
+			}
+
+			.form-field input, .form-field select, .form-field textarea {
+				padding: 0.7rem;
+				border: 1px solid #d0dae3;
+				border-radius: 0.6rem;
+				font-size: 0.9rem;
+			}
+
+		.submit-btn {
+			background: #1a6e5f;
+			color: white;
+			border: none;
+			padding: 0.7rem 1.5rem;
+			border-radius: 0.8rem;
+			font-weight: 600;
+			cursor: pointer;
+			margin-top: 1rem;
+		}
+
+		.doctor-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.8rem;
+			margin: 1rem 0;
+		}
+
+		.doctor-tag {
+			background: #1a6e5f;
+			color: white;
+			padding: 0.4rem 1rem;
+			border-radius: 2rem;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-size: 0.85rem;
+		}
+
+			.doctor-tag .remove-doc {
+				background: rgba(255,255,255,0.3);
+				border: none;
+				color: white;
+				border-radius: 50%;
+				width: 20px;
+				height: 20px;
+				cursor: pointer;
+			}
+
+		.add-doctor-form {
+			display: flex;
+			gap: 0.5rem;
+			flex-wrap: wrap;
+		}
+
+			.add-doctor-form input {
+				padding: 0.5rem 1rem;
+				border: 1px solid #d0dae3;
+				border-radius: 0.6rem;
+				flex: 1;
+				min-width: 200px;
+			}
+
+		.small-btn {
+			background: #2c9a8a;
+			color: white;
+			border: none;
+			padding: 0.5rem 1rem;
+			border-radius: 0.6rem;
+			cursor: pointer;
+		}
+
+		.filters-bar {
+			background: white;
+			border-radius: 1rem;
+			padding: 1rem 1.5rem;
+			margin-bottom: 1.5rem;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1rem;
+			align-items: flex-end;
+		}
+
+		.filter-group {
+			flex: 1;
+			min-width: 150px;
+		}
+
+			.filter-group label {
+				font-size: 0.75rem;
+				font-weight: 600;
+				color: #4a6272;
+				display: block;
+				margin-bottom: 0.3rem;
+			}
+
+			.filter-group input, .filter-group select {
+				width: 100%;
+				padding: 0.6rem;
+				border: 1px solid #d0dae3;
+				border-radius: 0.6rem;
+			}
+
+		.search-btn, .clear-btn, .export-btn {
+			padding: 0.6rem 1.2rem;
+			border-radius: 0.6rem;
+			font-weight: 500;
+			cursor: pointer;
+			border: none;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.search-btn {
+			background: #1a6e5f;
+			color: white;
+		}
+
+		.clear-btn {
+			background: #6c757d;
+			color: white;
+		}
+
+		.export-btn {
+			background: #2c9a8a;
+			color: white;
+		}
+
+		.table-container {
+			background: white;
+			border-radius: 1.2rem;
+			padding: 1rem;
+			overflow-x: auto;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th, td {
+			padding: 0.8rem;
+			text-align: left;
+			border-bottom: 1px solid #e9ecef;
+		}
+
+		th {
+			background: #f8f9fa;
+			font-weight: 600;
+			color: #115e54;
+			cursor: pointer;
+		}
+
+		.edit-btn, .delete-btn {
+			background: none;
+			border: none;
+			cursor: pointer;
+			font-size: 1.1rem;
+			padding: 0.2rem 0.4rem;
+		}
+
+		.edit-btn {
+			color: #2c9a8a;
+		}
+
+		.delete-btn {
+			color: #dc3545;
+		}
+
+		.pagination {
+			display: flex;
+			justify-content: center;
+			gap: 0.5rem;
+			margin-top: 1rem;
+			flex-wrap: wrap;
+		}
+
+		.page-btn {
+			padding: 0.4rem 0.8rem;
+			border: 1px solid #d0dae3;
+			background: white;
+			border-radius: 0.4rem;
+			cursor: pointer;
+		}
+
+			.page-btn.active {
+				background: #1a6e5f;
+				color: white;
+			}
+
+		.stats {
+			margin-top: 0.8rem;
+			font-size: 0.85rem;
+			color: #6c757d;
+			text-align: center;
+		}
+
+		.fees-summary {
+			background: #e6f4f0;
+			border-radius: 0.8rem;
+			padding: 0.6rem 1rem;
+			margin-top: 0.8rem;
+			font-weight: 600;
+			display: inline-block;
+		}
+
+		@media (max-width: 700px) {
+			.main-app {
+				padding: 1rem;
+			}
+
+			th, td {
+				padding: 0.5rem;
+				font-size: 0.8rem;
+			}
+		}
+	</style>
+</head>
+<body>
+
+	<div id="loginPage" class="login-container">
+		<div class="login-card">
+			<h2><i class="fas fa-stethoscope"></i> MGM Health Care</h2>
+			<div class="clinic-name">Dr. M.M. Gopikumar | Google Sheets</div>
+			<div class="input-group"><label>Username</label><input type="text" id="loginUsername" placeholder="Enter username"></div>
+			<div class="input-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter password"></div>
+			<button class="login-btn" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
+			<div id="loginError" class="error-msg"></div>
+			<div style="margin-top:1rem; font-size:0.8rem; text-align:center;">Demo: admin / admin123</div>
+		</div>
+	</div>
+
+	<div id="mainApp" class="main-app">
+		<div class="app-header">
+			<h2><i class="fas fa-notes-medical"></i> Patient Management - Dr. M.M. Gopikumar</h2>
+			<div style="display:flex; gap:1rem; align-items:center;">
+				<span id="syncStatus" class="sync-status"><i class="fas fa-cloud-upload-alt"></i> Ready</span>
+				<button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+			</div>
+		</div>
+
+		<!-- Doctor Management -->
+		<div class="form-card doctor-card">
+			<div class="form-title"><i class="fas fa-user-md"></i> Doctor Management</div>
+			<div id="doctorListContainer" class="doctor-list">Loading doctors...</div>
+			<div class="add-doctor-form">
+				<input type="text" id="newDoctorName" placeholder="Enter doctor name (e.g., Dr. M.M. Gopikumar)">
+				<button class="small-btn" onclick="addDoctor()"><i class="fas fa-plus"></i> Add Doctor</button>
+			</div>
+			<div style="font-size:0.7rem; color:#9b6f0b; margin-top:0.5rem;"><i class="fas fa-info-circle"></i> Doctors added here will appear in patient entry dropdown</div>
+		</div>
+
+		<!-- Add Patient Form -->
+		<div class="form-card">
+			<div class="form-title"><i class="fas fa-user-plus"></i> Daily Patient Entry</div>
+			<div class="form-grid">
+				<div class="form-field"><label>Doctor Name *</label><select id="patDoctor"><option value="">-- Select Doctor --</option></select></div>
+				<div class="form-field"><label>Patient Name *</label><input type="text" id="patName" placeholder="Full name"></div>
+				<div class="form-field"><label>Age</label><input type="number" id="patAge" placeholder="Age"></div>
+				<div class="form-field"><label>Gender</label><select id="patGender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+				<div class="form-field"><label>Phone</label><input type="text" id="patPhone" placeholder="Mobile number"></div>
+				<div class="form-field"><label>Visit Date</label><input type="date" id="patDate"></div>
+				<div class="form-field"><label>Fees Collected (₹)</label><input type="number" id="patFees" placeholder="Consultation fee" value="0"></div>
+				<div class="form-field"><label>Complaint / Diagnosis</label><textarea id="patComplaint" rows="2" placeholder="Symptoms, diagnosis..."></textarea></div>
+			</div>
+			<button class="submit-btn" onclick="addPatient()"><i class="fas fa-save"></i> Save Patient Record (Syncs to Google Sheet)</button>
+		</div>
+
+		<!-- Filters -->
+		<div class="filters-bar">
+			<div class="filter-group"><label><i class="fas fa-search"></i> Search</label><input type="text" id="searchInput" placeholder="Name or Phone"></div>
+			<div class="filter-group"><label><i class="fas fa-user-md"></i> Filter by Doctor</label><select id="filterDoctor"><option value="">All Doctors</option></select></div>
+			<div class="filter-group"><label><i class="fas fa-calendar"></i> From Date</label><input type="date" id="filterFrom"></div>
+			<div class="filter-group"><label><i class="fas fa-calendar"></i> To Date</label><input type="date" id="filterTo"></div>
+			<div><button class="search-btn" onclick="applyFilters()"><i class="fas fa-search"></i> Search</button></div>
+			<div><button class="clear-btn" onclick="clearFilters()"><i class="fas fa-eraser"></i> Clear</button></div>
+			<div><button class="export-btn" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export CSV</button></div>
+		</div>
+
+		<!-- Patient Table -->
+		<div class="table-container">
+			<table id="patientTable">
+				<thead>
+					<tr><th onclick="sortTable('id')">ID 🔽</th><th onclick="sortTable('doctor')">Doctor</th><th onclick="sortTable('name')">Patient Name</th><th onclick="sortTable('age')">Age</th><th onclick="sortTable('gender')">Gender</th><th onclick="sortTable('phone')">Phone</th><th onclick="sortTable('date')">Visit Date</th><th onclick="sortTable('fees')">Fees (₹)</th><th>Complaint</th><th>Actions</th></tr>
+				</thead>
+				<tbody id="tableBody"></tbody>
+			</table>
+			<div id="paginationControls" class="pagination"></div>
+			<div id="tableStats" class="stats"></div>
+			<div id="totalFeesDisplay" class="fees-summary"></div>
+		</div>
+	</div>
+
+	<script>
+		// 🔥🔥🔥 IMPORTANT: PUT YOUR CORRECT URL HERE (must end with /exec) 🔥🔥🔥
+		const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_5olkZPFqSlXrwxUcIJ1CYuJEQkZqTBStCXYlyR1064-n8f2rQzULUcRK_lYk7baE/exec";
+
+		let patients = [];
+		let doctors = [];
+		let currentPage = 1;
+		const rowsPerPage = 10;
+		let sortColumn = 'id';
+		let sortDirection = 'desc';
+
+		// API CALL FUNCTION - IMPROVED VERSION WITH BETTER ERROR HANDLING
+		async function callGoogleAPI(action, data = {}) {
+			try {
+				const statusEl = document.getElementById('syncStatus');
+				if (statusEl) {
+					statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing...';
+				}
+
+				const payload = { action, ...data };
+
+				console.log("Calling API with action:", action, "Payload:", payload);
+
+				const response = await fetch(GOOGLE_SCRIPT_URL, {
+					method: 'POST',
+					mode: 'cors',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(payload)
+				});
+
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+
+				const result = await response.json();
+				console.log("API Response:", result);
+
+				if (statusEl && action !== 'getPatients' && action !== 'getDoctors') {
+					if (result.success) {
+						statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Saved!';
+						setTimeout(() => {
+							if (document.getElementById('syncStatus')) {
+								document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready';
+							}
+						}, 2000);
+					} else {
+						statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
+						setTimeout(() => {
+							if (document.getElementById('syncStatus')) {
+								document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready';
+							}
+						}, 2000);
+					}
+				}
+
+				return result;
+			} catch (error) {
+				console.error("API Error:", error);
+				const statusEl = document.getElementById('syncStatus');
+				if (statusEl) {
+					statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection Error';
+					setTimeout(() => {
+						if (document.getElementById('syncStatus')) {
+							document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready';
+						}
+					}, 3000);
+				}
+				return { success: false, error: error.message };
+			}
+		}
+
+		// LOAD DATA FROM GOOGLE SHEET
+		async function loadData() {
+			const statusEl = document.getElementById('syncStatus');
+			statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing...';
+			statusEl.className = 'sync-status';
+
+			try {
+				// Load patients
+				const pResult = await callGoogleAPI("getPatients");
+				if (pResult.success && pResult.patients) {
+					patients = pResult.patients;
+					patients.forEach(p => { if (p.fees === undefined) p.fees = 0; });
+				} else {
+					patients = [];
+					console.log("Patients load failed:", pResult);
+				}
+
+				// Load doctors
+				const dResult = await callGoogleAPI("getDoctors");
+				if (dResult.success && dResult.doctors) {
+					doctors = dResult.doctors;
+				} else {
+					doctors = [];
+					console.log("Doctors load failed:", dResult);
+				}
+
+				updateUI();
+				renderTable();
+				statusEl.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Synced ✓';
+			} catch (error) {
+				statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sync Failed';
+				console.error("Load error:", error);
+			}
+		}
+
+		function updateUI() {
+			// Update doctor dropdowns
+			const patSelect = document.getElementById('patDoctor');
+			const filterSelect = document.getElementById('filterDoctor');
+			const container = document.getElementById('doctorListContainer');
+
+			if (patSelect) {
+				patSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
+				doctors.forEach(doc => {
+					patSelect.innerHTML += `<option value="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</option>`;
+				});
+				if (doctors.length === 0) {
+					patSelect.innerHTML = '<option value="">-- No Doctors Available. Add Doctor First --</option>';
+				}
+			}
+
+			if (filterSelect) {
+				filterSelect.innerHTML = '<option value="">All Doctors</option>';
+				doctors.forEach(doc => {
+					filterSelect.innerHTML += `<option value="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</option>`;
+				});
+			}
+
+			if (container) {
+				if (doctors.length === 0) {
+					container.innerHTML = '<span style="color:#999; font-size:0.85rem;">No doctors added. Click "Add Doctor" to create.</span>';
+				} else {
+					container.innerHTML = '';
+					doctors.forEach(doc => {
+						container.innerHTML += `
+							<div class="doctor-tag">
+								${escapeHtml(doc.name)}
+								<button class="remove-doc" onclick="deleteDoctor(${doc.id})" title="Delete Doctor">
+									<i class="fas fa-times"></i>
+								</button>
+							</div>
+						`;
+					});
+				}
+			}
+		}
+
+		// DOCTOR FUNCTIONS
+		async function addDoctor() {
+			const name = document.getElementById('newDoctorName').value.trim();
+			if (!name) {
+				alert("Please enter doctor name");
+				return;
+			}
+
+			if (doctors.some(d => d.name.toLowerCase() === name.toLowerCase())) {
+				alert("Doctor already exists!");
+				return;
+			}
+
+			const newId = doctors.length > 0 ? Math.max(...doctors.map(d => d.id)) + 1 : 1;
+			const newDoctor = { id: newId, name: name, qualification: "" };
+
+			const result = await callGoogleAPI("saveDoctor", { doctor: newDoctor });
+
+			if (result.success) {
+				await loadData();
+				document.getElementById('newDoctorName').value = '';
+				alert(`✓ Doctor "${name}" added successfully!`);
+			} else {
+				alert("Failed to add doctor. Error: " + (result.error || "Unknown"));
+			}
+		}
+
+		async function deleteDoctor(id) {
+			const doctor = doctors.find(d => d.id === id);
+			if (!doctor) return;
+
+			if (confirm(`Delete "${doctor.name}"?`)) {
+				const result = await callGoogleAPI("deleteDoctor", { id: id });
+				if (result.success) {
+					await loadData();
+					alert(`Doctor "${doctor.name}" deleted`);
+				} else {
+					alert("Failed to delete doctor");
+				}
+			}
+		}
+
+		// PATIENT FUNCTIONS
+		function generateNextId() {
+			if (patients.length === 0) return 1001;
+			return Math.max(...patients.map(p => Number(p.id) || 0)) + 1;
+		}
+
+		async function addPatient() {
+			const doctor = document.getElementById('patDoctor').value;
+			const name = document.getElementById('patName').value.trim();
+
+			if (!doctor) {
+				alert("Please select a doctor");
+				return;
+			}
+			if (!name) {
+				alert("Please enter patient name");
+				return;
+			}
+
+			const patient = {
+				id: generateNextId(),
+				doctor: doctor,
+				name: name,
+				age: parseInt(document.getElementById('patAge').value) || '',
+				gender: document.getElementById('patGender').value,
+				phone: document.getElementById('patPhone').value.trim(),
+				date: document.getElementById('patDate').value || new Date().toISOString().split('T')[0],
+				fees: parseInt(document.getElementById('patFees').value) || 0,
+				complaint: document.getElementById('patComplaint').value.trim() || '—'
+			};
+
+			const result = await callGoogleAPI("savePatient", { patient: patient });
+
+			if (result.success) {
+				await loadData();
+				clearPatientForm();
+				alert(`✓ Patient "${name}" saved for ${doctor}`);
+			} else {
+				alert("Failed to save patient. Error: " + (result.error || "Unknown"));
+			}
+		}
+
+		function clearPatientForm() {
+			document.getElementById('patDoctor').value = '';
+			document.getElementById('patName').value = '';
+			document.getElementById('patAge').value = '';
+			document.getElementById('patGender').value = 'Male';
+			document.getElementById('patPhone').value = '';
+			document.getElementById('patDate').value = new Date().toISOString().split('T')[0];
+			document.getElementById('patFees').value = '0';
+			document.getElementById('patComplaint').value = '';
+		}
+
+		let editModeId = null;
+		async function editPatient(id) {
+			const patient = patients.find(p => Number(p.id) === id);
+			if (!patient) return;
+
+			document.getElementById('patDoctor').value = patient.doctor;
+			document.getElementById('patName').value = patient.name;
+			document.getElementById('patAge').value = patient.age;
+			document.getElementById('patGender').value = patient.gender;
+			document.getElementById('patPhone').value = patient.phone;
+			document.getElementById('patDate').value = patient.date;
+			document.getElementById('patFees').value = patient.fees;
+			document.getElementById('patComplaint').value = patient.complaint === '—' ? '' : patient.complaint;
+			editModeId = id;
+
+			const btn = document.querySelector('#mainApp .submit-btn');
+			btn.innerHTML = '<i class="fas fa-edit"></i> Update Patient';
+			btn.setAttribute('onclick', 'updatePatient()');
+		}
+
+		async function updatePatient() {
+			if (!editModeId) return;
+
+			const doctor = document.getElementById('patDoctor').value;
+			if (!doctor) { alert("Select doctor"); return; }
+
+			const updatedPatient = {
+				id: editModeId,
+				doctor: doctor,
+				name: document.getElementById('patName').value.trim(),
+				age: parseInt(document.getElementById('patAge').value) || '',
+				gender: document.getElementById('patGender').value,
+				phone: document.getElementById('patPhone').value.trim(),
+				date: document.getElementById('patDate').value || new Date().toISOString().split('T')[0],
+				fees: parseInt(document.getElementById('patFees').value) || 0,
+				complaint: document.getElementById('patComplaint').value.trim() || '—'
+			};
+
+			const result = await callGoogleAPI("updatePatient", { patient: updatedPatient });
+
+			if (result.success) {
+				await loadData();
+				clearPatientForm();
+				editModeId = null;
+				const btn = document.querySelector('#mainApp .submit-btn');
+				btn.innerHTML = '<i class="fas fa-save"></i> Save Patient Record';
+				btn.setAttribute('onclick', 'addPatient()');
+				alert("Patient updated successfully");
+			} else {
+				alert("Update failed");
+			}
+		}
+
+		async function deletePatient(id) {
+			if (confirm("Delete this patient record permanently?")) {
+				const result = await callGoogleAPI("deletePatient", { id: id });
+				if (result.success) {
+					await loadData();
+					alert("Patient deleted");
+				} else {
+					alert("Delete failed");
+				}
+			}
+		}
+
+		// FILTER, SORT, PAGINATION
+		function getFilteredPatients() {
+			const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+			const doctorFilter = document.getElementById('filterDoctor')?.value || '';
+			const fromDate = document.getElementById('filterFrom')?.value || '';
+			const toDate = document.getElementById('filterTo')?.value || '';
+
+			let filtered = [...patients];
+			if (search) {
+				filtered = filtered.filter(p =>
+					(p.name || '').toLowerCase().includes(search) ||
+					(p.phone || '').includes(search)
+				);
+			}
+			if (doctorFilter) filtered = filtered.filter(p => p.doctor === doctorFilter);
+			if (fromDate) filtered = filtered.filter(p => p.date >= fromDate);
+			if (toDate) filtered = filtered.filter(p => p.date <= toDate);
+
+			filtered.sort((a, b) => {
+				let aVal = a[sortColumn];
+				let bVal = b[sortColumn];
+				if (sortColumn === 'id' || sortColumn === 'age' || sortColumn === 'fees') {
+					aVal = Number(aVal) || 0;
+					bVal = Number(bVal) || 0;
+				}
+				if (typeof aVal === 'string') {
+					aVal = aVal.toLowerCase();
+					bVal = bVal.toLowerCase();
+				}
+				if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+				if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+				return 0;
+			});
+			return filtered;
+		}
+
+		function applyFilters() { currentPage = 1; renderTable(); }
+		function clearFilters() {
+			document.getElementById('searchInput').value = '';
+			document.getElementById('filterDoctor').value = '';
+			document.getElementById('filterFrom').value = '';
+			document.getElementById('filterTo').value = '';
+			currentPage = 1;
+			renderTable();
+		}
+
+		function sortTable(column) {
+			if (sortColumn === column) {
+				sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+			} else {
+				sortColumn = column;
+				sortDirection = 'asc';
+			}
+			renderTable();
+		}
+
+		function renderTable() {
+			const filtered = getFilteredPatients();
+			const totalPages = Math.ceil(filtered.length / rowsPerPage);
+			if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+			if (totalPages === 0) currentPage = 1;
+			const start = (currentPage - 1) * rowsPerPage;
+			const paginated = filtered.slice(start, start + rowsPerPage);
+
+			const tbody = document.getElementById('tableBody');
+			tbody.innerHTML = '';
+
+			if (paginated.length === 0) {
+				tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:2rem;">No patients found. Add a patient to get started.</td></tr>';
+			} else {
+				paginated.forEach(p => {
+					tbody.innerHTML += `
+						<tr>
+							<td>${p.id}</td>
+							<td><strong style="color:#1a6e5f;">${escapeHtml(p.doctor || '-')}</strong></td>
+							<td>${escapeHtml(p.name)}</td>
+							<td>${p.age}</td>
+							<td>${p.gender}</td>
+							<td>${p.phone}</td>
+							<td>${p.date}</td>
+							<td style="font-weight:600; color:#1a6e5f;">₹${p.fees}</td>
+							<td style="max-width:200px;">${escapeHtml(p.complaint)}</td>
+							<td>
+								<button class="edit-btn" onclick="editPatient(${p.id})"><i class="fas fa-edit"></i></button>
+								<button class="delete-btn" onclick="deletePatient(${p.id})"><i class="fas fa-trash"></i></button>
+							</td>
+						</tr>
+					`;
+				});
+			}
+
+			// Pagination
+			const pagDiv = document.getElementById('paginationControls');
+			pagDiv.innerHTML = '';
+			if (totalPages > 1) {
+				for (let i = 1; i <= totalPages; i++) {
+					const btn = document.createElement('button');
+					btn.innerText = i;
+					btn.classList.add('page-btn');
+					if (i === currentPage) btn.classList.add('active');
+					btn.onclick = () => { currentPage = i; renderTable(); };
+					pagDiv.appendChild(btn);
+				}
+			}
+
+			const totalFees = filtered.reduce((sum, p) => sum + (Number(p.fees) || 0), 0);
+			document.getElementById('totalFeesDisplay').innerHTML = `<i class="fas fa-rupee-sign"></i> Total Collection: ₹${totalFees.toLocaleString('en-IN')} | ${filtered.length} patients`;
+			document.getElementById('tableStats').innerHTML = `Showing ${paginated.length} of ${filtered.length} patients | Page ${currentPage} of ${totalPages || 1}`;
+		}
+
+		function escapeHtml(str) {
+			if (!str) return '';
+			return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+		}
+
+		function exportToExcel() {
+			const filtered = getFilteredPatients();
+			if (filtered.length === 0) { alert("No data to export"); return; }
+
+			let csv = [["ID", "Doctor", "Patient Name", "Age", "Gender", "Phone", "Date", "Fees", "Complaint"].join(",")];
+			filtered.forEach(p => {
+				csv.push(`"${p.id}","${p.doctor}","${p.name}","${p.age}","${p.gender}","${p.phone}","${p.date}","${p.fees}","${(p.complaint || '').replace(/"/g, '""')}"`);
+			});
+
+			const blob = new Blob(["\uFEFF" + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+			const link = document.createElement('a');
+			const url = URL.createObjectURL(blob);
+			link.href = url;
+			link.setAttribute('download', `mgm_patients_${new Date().toISOString().slice(0, 19)}.csv`);
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+			alert("CSV exported!");
+		}
+
+		// LOGIN FUNCTIONS
+		function handleLogin() {
+			const username = document.getElementById('loginUsername').value.trim();
+			const password = document.getElementById('loginPassword').value.trim();
+
+			if (username === 'admin' && password === 'admin123') {
+				localStorage.setItem('isLoggedIn', 'true');
+				document.getElementById('loginPage').style.display = 'none';
+				document.getElementById('mainApp').style.display = 'block';
+				loadData();
+			} else {
+				document.getElementById('loginError').innerText = 'Invalid credentials. Use admin / admin123';
+			}
+		}
+
+		function logout() {
+			localStorage.removeItem('isLoggedIn');
+			document.getElementById('loginPage').style.display = 'flex';
+			document.getElementById('mainApp').style.display = 'none';
+			document.getElementById('loginUsername').value = '';
+			document.getElementById('loginPassword').value = '';
+		}
+
+		// Check login status on page load
+		if (localStorage.getItem('isLoggedIn') === 'true') {
+			document.getElementById('loginPage').style.display = 'none';
+			document.getElementById('mainApp').style.display = 'block';
+			loadData();
+		}
+
+		// Set default date
+		document.addEventListener('DOMContentLoaded', () => {
+			const today = new Date().toISOString().split('T')[0];
+			if (document.getElementById('patDate')) document.getElementById('patDate').value = today;
+		});
+
+		// Expose functions globally
+		window.handleLogin = handleLogin;
+		window.logout = logout;
+		window.addDoctor = addDoctor;
+		window.deleteDoctor = deleteDoctor;
+		window.addPatient = addPatient;
+		window.editPatient = editPatient;
+		window.updatePatient = updatePatient;
+		window.deletePatient = deletePatient;
+		window.applyFilters = applyFilters;
+		window.clearFilters = clearFilters;
+		window.sortTable = sortTable;
+		window.exportToExcel = exportToExcel;
+	</script>
+</body>
+</html>
