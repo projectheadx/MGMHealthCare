@@ -967,5 +967,45 @@
 		window.sortTable = sortTable;
 		window.exportToExcel = exportToExcel;
 	</script>
+
+
+
+	<script>
+
+		async function loadData() {
+			const tbody = document.getElementById('tableBody');
+			// Table-la loading message kaatu
+			tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:3rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Fetching Records... Please wait.</td></tr>';
+
+			try {
+				const pResult = await callGoogleAPI("getPatients");
+				// ... (rest of your load logic)
+			} catch (e) {
+				// ...
+			}
+		}
+
+
+
+	</script>
+
+	<script>
+
+		async function addPatient() {
+			// 1. First UI-la immediate-ah result kaatu
+			alert("Record sending to server... You can continue working.");
+			clearPatientForm();
+
+			// 2. Background-la API call pannu
+			const result = await callGoogleAPI("savePatient", { patient: patient });
+
+			if (result.success) {
+				loadData(); // Success aana apram refresh pannu
+			}
+		}
+	</script>
+
+
+
 </body>
 </html>
