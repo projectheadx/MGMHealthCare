@@ -452,7 +452,7 @@
 
 	<script>
 		// 🔥🔥🔥 IMPORTANT: PUT YOUR CORRECT URL HERE (must end with /exec) 🔥🔥🔥
-		const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsqfGMSud1XDECt6GgN-lyiQItAS36QrN5PwYi_rl5R6p3kVw-hkLEWsGKgNzE1Xts/exec";
+		const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby4w69SiCI8aKkO4s18X6mlbn-hp4n7SRmo_1enB69dPxv4d6FUzeRO2H8-m6PFfGBk/exec";
 
 		let patients = [];
 		let doctors = [];
@@ -661,17 +661,6 @@
 				return;
 			}
 
-			// Indian Timezone-la AM/PM oda date generate panna indha logic:
-			const now = new Date();
-			const formattedDate = now.toLocaleString('en-IN', {
-				day: '2-digit',
-				month: '2-digit',
-				year: 'numeric',
-				hour: '2-digit',
-				minute: '2-digit',
-				hour12: true
-			}).replace(/\//g, '-'); // Slashes-ah dashes-ah mathurathuku
-
 			const patient = {
 				id: generateNextId(),
 				doctor: doctor,
@@ -679,21 +668,10 @@
 				age: parseInt(document.getElementById('patAge').value) || '',
 				gender: document.getElementById('patGender').value,
 				phone: document.getElementById('patPhone').value.trim(),
-				date: formattedDate, // Ippo "18-05-2026 05:45 PM" nu anupum
+				date: document.getElementById('patDate').value || new Date().toISOString().split('T')[0],
 				fees: parseInt(document.getElementById('patFees').value) || 0,
 				complaint: document.getElementById('patComplaint').value.trim() || '—'
 			};
-
-			const result = await callGoogleAPI("savePatient", { patient: patient });
-
-			if (result.success) {
-				await loadData();
-				clearPatientForm();
-				alert(`✓ Patient "${name}" saved for ${doctor}`);
-			} else {
-				alert("Failed to save patient. Error: " + (result.error || "Unknown"));
-			}
-		}
 
 			const result = await callGoogleAPI("savePatient", { patient: patient });
 
