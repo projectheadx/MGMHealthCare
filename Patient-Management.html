@@ -712,16 +712,25 @@
 		}
 
 		// FILTERS, SORTING & RENDERING
+		// FILTERS, SORTING & RENDERING (FIXED FOR SEARCH)
 		function getFilteredPatients() {
-			const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+			const search = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
 			const doctorFilter = document.getElementById('filterDoctor')?.value || '';
 			const fromDate = document.getElementById('filterFrom')?.value || '';
 			const toDate = document.getElementById('filterTo')?.value || '';
 
 			let filtered = [...patients];
+
 			if (search) {
-				filtered = filtered.filter(p => (p.name || '').toLowerCase().includes(search) || (p.phone || '').includes(search));
+				filtered = filtered.filter(p => {
+					// Safe String check converting numbers or undefined safely
+					const patientName = String(p.name || '').toLowerCase();
+					const patientPhone = String(p.phone || '');
+
+					return patientName.includes(search) || patientPhone.includes(search);
+				});
 			}
+
 			if (doctorFilter) filtered = filtered.filter(p => p.doctor === doctorFilter);
 			if (fromDate) filtered = filtered.filter(p => p.date >= fromDate);
 			if (toDate) filtered = filtered.filter(p => p.date <= toDate);
