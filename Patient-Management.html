@@ -7,26 +7,21 @@
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 	<style>
-
 		/* Table cells content overflow fix */
 		td {
-			max-width: 200px; /* Nee unaku ethapadi mathiko */
+			max-width: 200px;
 			white-space: normal;
 			word-wrap: break-word;
-			word-break: break-word; /* Idhu dhaan long text-ah automatic-ah next line kondu varum */
+			word-break: break-word;
 			vertical-align: top;
 		}
 
-			/* Specific-ah complaint column-ku mattum venum na */
+			/* Specific complaint column styling */
 			td:nth-child(9) {
 				min-width: 150px;
 				font-size: 0.85rem;
 				color: #444;
 			}
-
-
-
-
 
 		* {
 			margin: 0;
@@ -63,6 +58,12 @@
 				font-size: 1.8rem;
 				margin-bottom: 0.5rem;
 			}
+
+		.clinic-name {
+			font-size: 0.9rem;
+			color: #666;
+			margin-bottom: 1.5rem;
+		}
 
 		.input-group {
 			margin-bottom: 1.2rem;
@@ -403,8 +404,6 @@
 		<div style="font-weight:600; color:#115e54;">Processing... Please wait</div>
 	</div>
 
-
-
 	<div id="loginPage" class="login-container">
 		<div class="login-card">
 			<h2><i class="fas fa-stethoscope"></i> MGM Health Care</h2>
@@ -426,7 +425,6 @@
 			</div>
 		</div>
 
-		<!-- Doctor Management -->
 		<div class="form-card doctor-card">
 			<div class="form-title"><i class="fas fa-user-md"></i> Doctor Management</div>
 			<div id="doctorListContainer" class="doctor-list">Loading doctors...</div>
@@ -437,7 +435,6 @@
 			<div style="font-size:0.7rem; color:#9b6f0b; margin-top:0.5rem;"><i class="fas fa-info-circle"></i> Doctors added here will appear in patient entry dropdown</div>
 		</div>
 
-		<!-- Add Patient Form -->
 		<div class="form-card">
 			<div class="form-title"><i class="fas fa-user-plus"></i> Daily Patient Entry</div>
 			<div class="form-grid">
@@ -453,7 +450,6 @@
 			<button class="submit-btn" onclick="addPatient()"><i class="fas fa-save"></i> Save Patient Record (Syncs to Google Sheet)</button>
 		</div>
 
-		<!-- Filters -->
 		<div class="filters-bar">
 			<div class="filter-group"><label><i class="fas fa-search"></i> Search</label><input type="text" id="searchInput" placeholder="Name or Phone"></div>
 			<div class="filter-group"><label><i class="fas fa-user-md"></i> Filter by Doctor</label><select id="filterDoctor"><option value="">All Doctors</option></select></div>
@@ -464,11 +460,21 @@
 			<div><button class="export-btn" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export CSV</button></div>
 		</div>
 
-		<!-- Patient Table -->
 		<div class="table-container">
 			<table id="patientTable">
 				<thead>
-					<tr><th onclick="sortTable('id')">ID 🔽</th><th onclick="sortTable('doctor')">Doctor</th><th onclick="sortTable('name')">Patient Name</th><th onclick="sortTable('age')">Age</th><th onclick="sortTable('gender')">Gender</th><th onclick="sortTable('phone')">Phone</th><th onclick="sortTable('date')">Visit Date</th><th onclick="sortTable('fees')">Fees (₹)</th><th>Complaint</th><th>Actions</th></tr>
+					<tr>
+						<th onclick="sortTable('id')">ID 🔽</th>
+						<th onclick="sortTable('doctor')">Doctor</th>
+						<th onclick="sortTable('name')">Patient Name</th>
+						<th onclick="sortTable('age')">Age</th>
+						<th onclick="sortTable('gender')">Gender</th>
+						<th onclick="sortTable('phone')">Phone</th>
+						<th onclick="sortTable('date')">Visit Date</th>
+						<th onclick="sortTable('fees')">Fees (₹)</th>
+						<th>Complaint</th>
+						<th>Actions</th>
+					</tr>
 				</thead>
 				<tbody id="tableBody"></tbody>
 			</table>
@@ -479,7 +485,7 @@
 	</div>
 
 	<script>
-		// 🔥🔥🔥 IMPORTANT: PUT YOUR CORRECT URL HERE (must end with /exec) 🔥🔥🔥
+		// 🔥 GOOGLE SCRIPT URL
 		const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjHt-QbpIAl5qWWtpNhcP6Ds9jKT54Hwr47RR_wDWqtPwdhXvyRM71npCZt23fCFeX/exec";
 
 		let patients = [];
@@ -489,13 +495,11 @@
 		let sortColumn = 'id';
 		let sortDirection = 'desc';
 
-		// API CALL FUNCTION - IMPROVED VERSION WITH BETTER ERROR HANDLING
+		// MAIN API CALL FUNCTION WITH LOADER
 		async function callGoogleAPI(action, data = {}) {
 			const overlay = document.getElementById('loadingOverlay');
 			try {
-				// Show loader
 				if (overlay) overlay.style.display = 'flex';
-
 				const statusEl = document.getElementById('syncStatus');
 				if (statusEl) statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing...';
 
@@ -508,61 +512,48 @@
 				});
 
 				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
 				const result = await response.json();
 
 				if (statusEl) {
 					statusEl.innerHTML = result.success ? '<i class="fas fa-check-circle"></i> Done' : '<i class="fas fa-times-circle"></i> Error';
 					setTimeout(() => { statusEl.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready'; }, 2000);
 				}
-
 				return result;
 			} catch (error) {
 				console.error("API Error:", error);
 				return { success: false, error: error.message };
 			} finally {
-				// Hide loader always (success or failure)
 				if (overlay) overlay.style.display = 'none';
 			}
 		}
 
-		// LOAD DATA FROM GOOGLE SHEET
+		// FETCH DATA & INITIALIZE UI
 		async function loadData() {
-			const statusEl = document.getElementById('syncStatus');
-			statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Syncing...';
-			statusEl.className = 'sync-status';
+			const tbody = document.getElementById('tableBody');
+			if (tbody) {
+				tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:3rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Fetching Records... Please wait.</td></tr>';
+			}
 
 			try {
-				// Load patients
 				const pResult = await callGoogleAPI("getPatients");
 				if (pResult.success && pResult.patients) {
 					patients = pResult.patients;
 					patients.forEach(p => { if (p.fees === undefined) p.fees = 0; });
-				} else {
-					patients = [];
-					console.log("Patients load failed:", pResult);
 				}
 
-				// Load doctors
 				const dResult = await callGoogleAPI("getDoctors");
 				if (dResult.success && dResult.doctors) {
 					doctors = dResult.doctors;
-				} else {
-					doctors = [];
-					console.log("Doctors load failed:", dResult);
 				}
 
 				updateUI();
 				renderTable();
-				statusEl.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Synced ✓';
 			} catch (error) {
-				statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sync Failed';
 				console.error("Load error:", error);
 			}
 		}
 
 		function updateUI() {
-			// Update doctor dropdowns
 			const patSelect = document.getElementById('patDoctor');
 			const filterSelect = document.getElementById('filterDoctor');
 			const container = document.getElementById('doctorListContainer');
@@ -572,80 +563,54 @@
 				doctors.forEach(doc => {
 					patSelect.innerHTML += `<option value="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</option>`;
 				});
-				if (doctors.length === 0) {
-					patSelect.innerHTML = '<option value="">-- No Doctors Available. Add Doctor First --</option>';
-				}
 			}
-
 			if (filterSelect) {
 				filterSelect.innerHTML = '<option value="">All Doctors</option>';
 				doctors.forEach(doc => {
 					filterSelect.innerHTML += `<option value="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</option>`;
 				});
 			}
-
 			if (container) {
 				if (doctors.length === 0) {
-					container.innerHTML = '<span style="color:#999; font-size:0.85rem;">No doctors added. Click "Add Doctor" to create.</span>';
+					container.innerHTML = '<span style="color:#999; font-size:0.85rem;">No doctors added.</span>';
 				} else {
 					container.innerHTML = '';
 					doctors.forEach(doc => {
 						container.innerHTML += `
-							<div class="doctor-tag">
-								${escapeHtml(doc.name)}
-								<button class="remove-doc" onclick="deleteDoctor(${doc.id})" title="Delete Doctor">
-									<i class="fas fa-times"></i>
-								</button>
-							</div>
-						`;
+								<div class="doctor-tag">
+									${escapeHtml(doc.name)}
+									<button class="remove-doc" onclick="deleteDoctor(${doc.id})"><i class="fas fa-times"></i></button>
+								</div>
+							`;
 					});
 				}
 			}
 		}
 
-		// DOCTOR FUNCTIONS
+		// DOCTOR LOGIC
 		async function addDoctor() {
 			const name = document.getElementById('newDoctorName').value.trim();
-			if (!name) {
-				alert("Please enter doctor name");
-				return;
-			}
-
-			if (doctors.some(d => d.name.toLowerCase() === name.toLowerCase())) {
-				alert("Doctor already exists!");
-				return;
-			}
+			if (!name) return alert("Please enter doctor name");
 
 			const newId = doctors.length > 0 ? Math.max(...doctors.map(d => d.id)) + 1 : 1;
-			const newDoctor = { id: newId, name: name, qualification: "" };
-
-			const result = await callGoogleAPI("saveDoctor", { doctor: newDoctor });
+			const result = await callGoogleAPI("saveDoctor", { doctor: { id: newId, name: name } });
 
 			if (result.success) {
-				await loadData();
 				document.getElementById('newDoctorName').value = '';
-				alert(`✓ Doctor "${name}" added successfully!`);
+				await loadData();
 			} else {
-				alert("Failed to add doctor. Error: " + (result.error || "Unknown"));
+				alert("Failed to add doctor.");
 			}
 		}
 
 		async function deleteDoctor(id) {
-			const doctor = doctors.find(d => d.id === id);
-			if (!doctor) return;
-
-			if (confirm(`Delete "${doctor.name}"?`)) {
+			if (confirm("Delete this doctor?")) {
 				const result = await callGoogleAPI("deleteDoctor", { id: id });
-				if (result.success) {
-					await loadData();
-					alert(`Doctor "${doctor.name}" deleted`);
-				} else {
-					alert("Failed to delete doctor");
-				}
+				if (result.success) await loadData();
 			}
 		}
 
-		// PATIENT FUNCTIONS
+		// PATIENT GENERATE ID & BACKGROUND SYNC LOGIC
 		function generateNextId() {
 			if (patients.length === 0) return 1001;
 			return Math.max(...patients.map(p => Number(p.id) || 0)) + 1;
@@ -655,16 +620,10 @@
 			const doctor = document.getElementById('patDoctor').value;
 			const name = document.getElementById('patName').value.trim();
 
-			if (!doctor) {
-				alert("Please select a doctor");
-				return;
-			}
-			if (!name) {
-				alert("Please enter patient name");
-				return;
-			}
+			if (!doctor || !name) return alert("Doctor Name and Patient Name are required!");
 
-			const patient = {
+			// Data structured strictly inside function block
+			const patientData = {
 				id: generateNextId(),
 				doctor: doctor,
 				name: name,
@@ -676,14 +635,16 @@
 				complaint: document.getElementById('patComplaint').value.trim() || '—'
 			};
 
-			const result = await callGoogleAPI("savePatient", { patient: patient });
+			// UI Optimization: Clear Form immediately and notify user
+			clearPatientForm();
+			alert("Record sending to server... You can continue working.");
 
+			// Trigger Network Sync call
+			const result = await callGoogleAPI("savePatient", { patient: patientData });
 			if (result.success) {
 				await loadData();
-				clearPatientForm();
-				alert(`✓ Patient "${name}" saved for ${doctor}`);
 			} else {
-				alert("Failed to save patient. Error: " + (result.error || "Unknown"));
+				alert("Failed to save to Google Sheet: " + (result.error || "Unknown Error"));
 			}
 		}
 
@@ -699,70 +660,58 @@
 		}
 
 		let editModeId = null;
-		async function editPatient(id) {
-			const patient = patients.find(p => Number(p.id) === id);
-			if (!patient) return;
+		function editPatient(id) {
+			const p = patients.find(pat => Number(pat.id) === id);
+			if (!p) return;
 
-			document.getElementById('patDoctor').value = patient.doctor;
-			document.getElementById('patName').value = patient.name;
-			document.getElementById('patAge').value = patient.age;
-			document.getElementById('patGender').value = patient.gender;
-			document.getElementById('patPhone').value = patient.phone;
-			document.getElementById('patDate').value = patient.date;
-			document.getElementById('patFees').value = patient.fees;
-			document.getElementById('patComplaint').value = patient.complaint === '—' ? '' : patient.complaint;
+			document.getElementById('patDoctor').value = p.doctor;
+			document.getElementById('patName').value = p.name;
+			document.getElementById('patAge').value = p.age;
+			document.getElementById('patGender').value = p.gender;
+			document.getElementById('patPhone').value = p.phone;
+			document.getElementById('patDate').value = p.date;
+			document.getElementById('patFees').value = p.fees;
+			document.getElementById('patComplaint').value = p.complaint === '—' ? '' : p.complaint;
 			editModeId = id;
 
-			const btn = document.querySelector('#mainApp .submit-btn');
+			const btn = document.querySelector('.submit-btn');
 			btn.innerHTML = '<i class="fas fa-edit"></i> Update Patient';
 			btn.setAttribute('onclick', 'updatePatient()');
 		}
 
 		async function updatePatient() {
 			if (!editModeId) return;
-
-			const doctor = document.getElementById('patDoctor').value;
-			if (!doctor) { alert("Select doctor"); return; }
-
-			const updatedPatient = {
+			const updated = {
 				id: editModeId,
-				doctor: doctor,
+				doctor: document.getElementById('patDoctor').value,
 				name: document.getElementById('patName').value.trim(),
 				age: parseInt(document.getElementById('patAge').value) || '',
 				gender: document.getElementById('patGender').value,
 				phone: document.getElementById('patPhone').value.trim(),
-				date: document.getElementById('patDate').value || new Date().toISOString().split('T')[0],
+				date: document.getElementById('patDate').value,
 				fees: parseInt(document.getElementById('patFees').value) || 0,
 				complaint: document.getElementById('patComplaint').value.trim() || '—'
 			};
 
-			const result = await callGoogleAPI("updatePatient", { patient: updatedPatient });
-
+			const result = await callGoogleAPI("updatePatient", { patient: updated });
 			if (result.success) {
-				await loadData();
 				clearPatientForm();
 				editModeId = null;
-				const btn = document.querySelector('#mainApp .submit-btn');
+				const btn = document.querySelector('.submit-btn');
 				btn.innerHTML = '<i class="fas fa-save"></i> Save Patient Record';
 				btn.setAttribute('onclick', 'addPatient()');
-				alert("Patient updated successfully");
-			} else {
-				alert("Update failed");
+				await loadData();
 			}
 		}
 
-		// DELETE Example
 		async function deletePatient(id) {
-			if (confirm("Delete this patient record permanently?")) {
+			if (confirm("Delete this patient record?")) {
 				const result = await callGoogleAPI("deletePatient", { id: id });
-				if (result.success) {
-					await loadData(); // IDHU DHAN MUKKIYAM - automatic refresh aagum
-					alert("Patient deleted");
-				}
+				if (result.success) await loadData();
 			}
 		}
 
-		// FILTER, SORT, PAGINATION
+		// FILTERS, SORTING & RENDERING
 		function getFilteredPatients() {
 			const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
 			const doctorFilter = document.getElementById('filterDoctor')?.value || '';
@@ -771,31 +720,74 @@
 
 			let filtered = [...patients];
 			if (search) {
-				filtered = filtered.filter(p =>
-					(p.name || '').toLowerCase().includes(search) ||
-					(p.phone || '').includes(search)
-				);
+				filtered = filtered.filter(p => (p.name || '').toLowerCase().includes(search) || (p.phone || '').includes(search));
 			}
 			if (doctorFilter) filtered = filtered.filter(p => p.doctor === doctorFilter);
 			if (fromDate) filtered = filtered.filter(p => p.date >= fromDate);
 			if (toDate) filtered = filtered.filter(p => p.date <= toDate);
 
 			filtered.sort((a, b) => {
-				let aVal = a[sortColumn];
-				let bVal = b[sortColumn];
-				if (sortColumn === 'id' || sortColumn === 'age' || sortColumn === 'fees') {
-					aVal = Number(aVal) || 0;
-					bVal = Number(bVal) || 0;
+				let aVal = a[sortColumn], bVal = b[sortColumn];
+				if (['id', 'age', 'fees'].includes(sortColumn)) {
+					aVal = Number(aVal) || 0; bVal = Number(bVal) || 0;
 				}
 				if (typeof aVal === 'string') {
-					aVal = aVal.toLowerCase();
-					bVal = bVal.toLowerCase();
+					aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase();
 				}
-				if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-				if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-				return 0;
+				return sortDirection === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
 			});
 			return filtered;
+		}
+
+		function renderTable() {
+			const filtered = getFilteredPatients();
+			const totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
+			const start = (currentPage - 1) * rowsPerPage;
+			const paginated = filtered.slice(start, start + rowsPerPage);
+
+			const tbody = document.getElementById('tableBody');
+			if (!tbody) return;
+			tbody.innerHTML = '';
+
+			if (paginated.length === 0) {
+				tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:2rem;">No records found.</td></tr>';
+			} else {
+				paginated.forEach(p => {
+					tbody.innerHTML += `
+							<tr>
+								<td>${p.id}</td>
+								<td><strong style="color:#1a6e5f;">${escapeHtml(p.doctor)}</strong></td>
+								<td>${escapeHtml(p.name)}</td>
+								<td>${p.age}</td>
+								<td>${p.gender}</td>
+								<td>${p.phone}</td>
+								<td>${p.date}</td>
+								<td style="font-weight:600; color:#1a6e5f;">₹${p.fees}</td>
+								<td>${escapeHtml(p.complaint)}</td>
+								<td>
+									<button class="edit-btn" onclick="editPatient(${p.id})"><i class="fas fa-edit"></i></button>
+									<button class="delete-btn" onclick="deletePatient(${p.id})"><i class="fas fa-trash"></i></button>
+								</td>
+							</tr>`;
+				});
+			}
+
+			// Pagination Builder
+			const pagDiv = document.getElementById('paginationControls');
+			pagDiv.innerHTML = '';
+			if (totalPages > 1) {
+				for (let i = 1; i <= totalPages; i++) {
+					const btn = document.createElement('button');
+					btn.innerText = i;
+					btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+					btn.onclick = () => { currentPage = i; renderTable(); };
+					pagDiv.appendChild(btn);
+				}
+			}
+
+			const totalFees = filtered.reduce((sum, p) => sum + (Number(p.fees) || 0), 0);
+			document.getElementById('totalFeesDisplay').innerHTML = `<i class="fas fa-rupee-sign"></i> Total Collection: ₹${totalFees.toLocaleString('en-IN')} | ${filtered.length} patients`;
+			document.getElementById('tableStats').innerHTML = `Showing ${paginated.length} of ${filtered.length} entries | Page ${currentPage} of ${totalPages}`;
 		}
 
 		function applyFilters() { currentPage = 1; renderTable(); }
@@ -804,72 +796,13 @@
 			document.getElementById('filterDoctor').value = '';
 			document.getElementById('filterFrom').value = '';
 			document.getElementById('filterTo').value = '';
-			currentPage = 1;
-			renderTable();
+			currentPage = 1; renderTable();
 		}
 
 		function sortTable(column) {
-			if (sortColumn === column) {
-				sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-			} else {
-				sortColumn = column;
-				sortDirection = 'asc';
-			}
+			sortDirection = (sortColumn === column && sortDirection === 'asc') ? 'desc' : 'asc';
+			sortColumn = column;
 			renderTable();
-		}
-
-		function renderTable() {
-			const filtered = getFilteredPatients();
-			const totalPages = Math.ceil(filtered.length / rowsPerPage);
-			if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
-			if (totalPages === 0) currentPage = 1;
-			const start = (currentPage - 1) * rowsPerPage;
-			const paginated = filtered.slice(start, start + rowsPerPage);
-
-			const tbody = document.getElementById('tableBody');
-			tbody.innerHTML = '';
-
-			if (paginated.length === 0) {
-				tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:2rem;">No patients found. Add a patient to get started.</td></tr>';
-			} else {
-				paginated.forEach(p => {
-					tbody.innerHTML += `
-						<tr>
-							<td>${p.id}</td>
-							<td><strong style="color:#1a6e5f;">${escapeHtml(p.doctor || '-')}</strong></td>
-							<td>${escapeHtml(p.name)}</td>
-							<td>${p.age}</td>
-							<td>${p.gender}</td>
-							<td>${p.phone}</td>
-							<td>${p.date}</td>
-							<td style="font-weight:600; color:#1a6e5f;">₹${p.fees}</td>
-							<td style="max-width:200px;">${escapeHtml(p.complaint)}</td>
-							<td>
-								<button class="edit-btn" onclick="editPatient(${p.id})"><i class="fas fa-edit"></i></button>
-								<button class="delete-btn" onclick="deletePatient(${p.id})"><i class="fas fa-trash"></i></button>
-							</td>
-						</tr>
-					`;
-				});
-			}
-
-			// Pagination
-			const pagDiv = document.getElementById('paginationControls');
-			pagDiv.innerHTML = '';
-			if (totalPages > 1) {
-				for (let i = 1; i <= totalPages; i++) {
-					const btn = document.createElement('button');
-					btn.innerText = i;
-					btn.classList.add('page-btn');
-					if (i === currentPage) btn.classList.add('active');
-					btn.onclick = () => { currentPage = i; renderTable(); };
-					pagDiv.appendChild(btn);
-				}
-			}
-
-			const totalFees = filtered.reduce((sum, p) => sum + (Number(p.fees) || 0), 0);
-			document.getElementById('totalFeesDisplay').innerHTML = `<i class="fas fa-rupee-sign"></i> Total Collection: ₹${totalFees.toLocaleString('en-IN')} | ${filtered.length} patients`;
-			document.getElementById('tableStats').innerHTML = `Showing ${paginated.length} of ${filtered.length} patients | Page ${currentPage} of ${totalPages || 1}`;
 		}
 
 		function escapeHtml(str) {
@@ -879,37 +812,27 @@
 
 		function exportToExcel() {
 			const filtered = getFilteredPatients();
-			if (filtered.length === 0) { alert("No data to export"); return; }
-
+			if (filtered.length === 0) return alert("No data to export");
 			let csv = [["ID", "Doctor", "Patient Name", "Age", "Gender", "Phone", "Date", "Fees", "Complaint"].join(",")];
-			filtered.forEach(p => {
-				csv.push(`"${p.id}","${p.doctor}","${p.name}","${p.age}","${p.gender}","${p.phone}","${p.date}","${p.fees}","${(p.complaint || '').replace(/"/g, '""')}"`);
-			});
-
+			filtered.forEach(p => csv.push(`"${p.id}","${p.doctor}","${p.name}","${p.age}","${p.gender}","${p.phone}","${p.date}","${p.fees}","${(p.complaint || '').replace(/"/g, '""')}"`));
 			const blob = new Blob(["\uFEFF" + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
 			const link = document.createElement('a');
-			const url = URL.createObjectURL(blob);
-			link.href = url;
-			link.setAttribute('download', `mgm_patients_${new Date().toISOString().slice(0, 19)}.csv`);
-			document.body.appendChild(link);
+			link.href = URL.createObjectURL(blob);
+			link.setAttribute('download', `mgm_patients.csv`);
 			link.click();
-			document.body.removeChild(link);
-			URL.revokeObjectURL(url);
-			alert("CSV exported!");
 		}
 
-		// LOGIN FUNCTIONS
+		// AUTHENTICATION
 		function handleLogin() {
-			const username = document.getElementById('loginUsername').value.trim();
-			const password = document.getElementById('loginPassword').value.trim();
-
-			if (username === 'admin' && password === 'admin123') {
+			const u = document.getElementById('loginUsername').value.trim();
+			const p = document.getElementById('loginPassword').value.trim();
+			if (u === 'admin' && p === 'admin123') {
 				localStorage.setItem('isLoggedIn', 'true');
 				document.getElementById('loginPage').style.display = 'none';
 				document.getElementById('mainApp').style.display = 'block';
 				loadData();
 			} else {
-				document.getElementById('loginError').innerText = 'Invalid credentials. Use admin / admin123';
+				document.getElementById('loginError').innerText = 'Invalid credentials!';
 			}
 		}
 
@@ -917,76 +840,25 @@
 			localStorage.removeItem('isLoggedIn');
 			document.getElementById('loginPage').style.display = 'flex';
 			document.getElementById('mainApp').style.display = 'none';
-			document.getElementById('loginUsername').value = '';
-			document.getElementById('loginPassword').value = '';
 		}
 
-		// Check login status on page load
 		if (localStorage.getItem('isLoggedIn') === 'true') {
 			document.getElementById('loginPage').style.display = 'none';
 			document.getElementById('mainApp').style.display = 'block';
 			loadData();
 		}
 
-		// Set default date
 		document.addEventListener('DOMContentLoaded', () => {
 			const today = new Date().toISOString().split('T')[0];
 			if (document.getElementById('patDate')) document.getElementById('patDate').value = today;
 		});
 
-		// Expose functions globally
-		window.handleLogin = handleLogin;
-		window.logout = logout;
-		window.addDoctor = addDoctor;
-		window.deleteDoctor = deleteDoctor;
-		window.addPatient = addPatient;
-		window.editPatient = editPatient;
-		window.updatePatient = updatePatient;
-		window.deletePatient = deletePatient;
-		window.applyFilters = applyFilters;
-		window.clearFilters = clearFilters;
-		window.sortTable = sortTable;
-		window.exportToExcel = exportToExcel;
+		window.handleLogin = handleLogin; window.logout = logout;
+		window.addDoctor = addDoctor; window.deleteDoctor = deleteDoctor;
+		window.addPatient = addPatient; window.editPatient = editPatient;
+		window.updatePatient = updatePatient; window.deletePatient = deletePatient;
+		window.applyFilters = applyFilters; window.clearFilters = clearFilters;
+		window.sortTable = sortTable; window.exportToExcel = exportToExcel;
 	</script>
-
-
-
-	<script>
-
-		async function loadData() {
-			const tbody = document.getElementById('tableBody');
-			// Table-la loading message kaatu
-			tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:3rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Fetching Records... Please wait.</td></tr>';
-
-			try {
-				const pResult = await callGoogleAPI("getPatients");
-				// ... (rest of your load logic)
-			} catch (e) {
-				// ...
-			}
-		}
-
-
-
-	</script>
-
-	<script>
-
-		async function addPatient() {
-			// 1. First UI-la immediate-ah result kaatu
-			alert("Record sending to server... You can continue working.");
-			clearPatientForm();
-
-			// 2. Background-la API call pannu
-			const result = await callGoogleAPI("savePatient", { patient: patient });
-
-			if (result.success) {
-				loadData(); // Success aana apram refresh pannu
-			}
-		}
-	</script>
-
-
-
 </body>
 </html>
