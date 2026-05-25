@@ -528,28 +528,43 @@
 		}
 
 		// FETCH DATA & INITIALIZE UI
+		// FETCH DATA & INITIALIZE UI (OPTIMIZED WITH SESSION CACHE)
 		async function loadData() {
 			const tbody = document.getElementById('tableBody');
-			if (tbody) {
+
+			// If we already have cached data in local session, show it instantly first!
+			const cachedPatients = localStorage.getItem('cached_patients');
+			const cachedDoctors = localStorage.getItem('cached_doctors');
+
+			if (cachedPatients && cachedDoctors && patients.length === 0) {
+				patients = JSON.parse(cachedPatients);
+				doctors = JSON.parse(cachedDoctors);
+				updateUI();
+				renderTable();
+			} else if (tbody && patients.length === 0) {
+				// Show skeleton loader only if absolutely no data available
 				tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:3rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Fetching Records... Please wait.</td></tr>';
 			}
 
 			try {
+				// Background sync to fetch updated records silently
 				const pResult = await callGoogleAPI("getPatients");
 				if (pResult.success && pResult.patients) {
 					patients = pResult.patients;
 					patients.forEach(p => { if (p.fees === undefined) p.fees = 0; });
+					localStorage.setItem('cached_patients', JSON.stringify(patients));
 				}
 
 				const dResult = await callGoogleAPI("getDoctors");
 				if (dResult.success && dResult.doctors) {
 					doctors = dResult.doctors;
+					localStorage.setItem('cached_doctors', JSON.stringify(doctors));
 				}
 
 				updateUI();
 				renderTable();
 			} catch (error) {
-				console.error("Load error:", error);
+				console.error("Silent sync load error:", error);
 			}
 		}
 
@@ -622,7 +637,7 @@
 
 			if (!doctor || !name) return alert("Doctor Name and Patient Name are required!");
 
-			// Data structured strictly inside function block
+			// 1. Generate local patient structure object
 			const patientData = {
 				id: generateNextId(),
 				doctor: doctor,
@@ -635,17 +650,44 @@
 				complaint: document.getElementById('patComplaint').value.trim() || '—'
 			};
 
-			// UI Optimization: Clear Form immediately and notify user
-			clearPatientForm();
-			alert("Record sending to server... You can continue working.");
+			// 2. CRITICAL SPEED OPTIMIZATION:
+			// Push into local patients array directly and render layout instantly without waiting for network!
+			patients.unshift(patientData); // Add to the top of table
+			localStorage.setItem('cached_patients', JSON.stringify(patients)); // update cache
+			renderTable();
 
-			// Trigger Network Sync call
-			const result = await callGoogleAPI("savePatient", { patient: patientData });
-			if (result.success) {
-				await loadData();
-			} else {
-				alert("Failed to save to Google Sheet: " + (result.error || "Unknown Error"));
-			}
+			// Clear input fields seamlessly
+			clearPatientForm();
+
+			// 3. Trigger network payload sync silently in the background
+			// overlay popup logic removed here to avoid interaction blocking
+			const statusEl = document.getElementById('syncStatus');
+			if (statusEl) statusEl.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Saving to Sheet...';
+
+			fetch(GOOGLE_SCRIPT_URL, {
+				method: 'POST',
+				mode: 'cors',
+				headers: { 'Content-Type': 'text/plain' },
+				body: JSON.stringify({ action: "savePatient", patient: patientData })
+			})
+				.then(response => response.json())
+				.then(result => {
+					if (result.success) {
+						if (statusEl) {
+							statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Sheet Updated';
+							setTimeout(() => { statusEl.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Ready'; }, 2000);
+						}
+						// Silently sync complete sheet backend to ensure ID generation matches perfectly
+						loadData();
+					} else {
+						if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Sync Error';
+						alert("Google Sheet-la store aagala machi! Check your internet connection.");
+					}
+				})
+				.catch(err => {
+					console.error("Background sync failed:", err);
+					if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Network Error';
+				});
 		}
 
 		function clearPatientForm() {
